@@ -9,7 +9,7 @@ Modern open-source OPC UA toolkit for industrial monitoring, realtime visualizat
 Built for industrial engineers, automation developers, system integrators, and Industry 4.0 environments.
 
 ---
-![Silver OPC UA Toolkit](docs/screenshots/Hero Banner.png)
+![Silver OPC UA Toolkit](docs/screenshots/hero-banner.png)
 ## Overview
 
 Silver OPC UA Toolkit is a modern industrial software platform focused on creating lightweight, developer-friendly, and cross-platform industrial tools around OPC UA.
