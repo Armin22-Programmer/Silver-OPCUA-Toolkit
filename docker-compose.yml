@@ -1,12 +1,10 @@
 # docker-compose.yml
-
 services:
-
   simulator:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: uv run python simulator/server.py
+    command: uv run --no-sync python simulator/server.py
     networks:
       - opcua-net
     restart: unless-stopped
@@ -16,12 +14,11 @@ services:
       timeout: 3s
       retries: 10
       start_period: 15s
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: uv run python run.py
+    command: uv run --no-sync python run.py
     ports:
       - "8000:8000"
     environment:
@@ -38,7 +35,6 @@ services:
     networks:
       - opcua-net
     restart: unless-stopped
-
   frontend:
     build:
       context: ./frontend
@@ -50,7 +46,6 @@ services:
     networks:
       - opcua-net
     restart: unless-stopped
-
 networks:
   opcua-net:
     driver: bridge

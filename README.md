@@ -9,7 +9,7 @@ Modern open-source OPC UA toolkit for industrial monitoring, realtime visualizat
 Built for industrial engineers, automation developers, system integrators, and Industry 4.0 environments.
 
 ---
-![Silver OPC UA Toolkit](docs/screenshots/live-monitor.png)
+![Silver OPC UA Toolkit](docs/screenshots/Hero Banner.png)
 ## Overview
 
 Silver OPC UA Toolkit is a modern industrial software platform focused on creating lightweight, developer-friendly, and cross-platform industrial tools around OPC UA.
@@ -194,6 +194,15 @@ cd backend
 uv run python simulator/server.py
 ```
 
+Simulator runs on `opc.tcp://localhost:4840` by default.
+
+> **Windows note:** Port 4840 may be blocked by `opcualds.exe`.
+> Use an alternate port:
+> ```powershell
+> $env:SIMULATOR_PORT="4841"; uv run python simulator/server.py
+> ```
+> In this case use `opc.tcp://localhost:4841` as the endpoint in the UI.
+
 ### Terminal 2 — Backend
 
 ```bash
@@ -281,11 +290,10 @@ Secure OPC UA connection setup supporting authentication methods, security modes
 
 ### v0.5.0-beta
 
-- Multi-connection monitoring
-- Production deployment documentation
-- Performance validation
-- Advanced OPC UA security validation
-- Expanded industrial interoperability testing
+1. Multi-Connection Monitoring
+2. Endpoint Discovery
+3. Production Deployment Documentation
+4. Performance Validation
 
 ### Future Releases
 

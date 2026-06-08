@@ -1,5 +1,4 @@
 # backend/Dockerfile
-
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -10,7 +9,7 @@ RUN pip install uv --no-cache-dir
 # Copy dependency files first for better layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies
+# Install only production dependencies
 RUN uv sync --frozen --no-dev
 
 # Copy application code

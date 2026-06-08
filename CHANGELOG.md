@@ -61,6 +61,8 @@ Pre-release versions may contain breaking changes during active alpha developmen
 - Tag Browser browse failure with String-type node IDs (Siemens S7 compatibility)
 - Auto-reconnect on startup now passes full security credentials from DB
 - Username/password credentials set before `connect()` (not after)
+- Vite dev server proxy config missing — API calls returned 404 in development
+- Docker containers downloading dev dependencies (`ruff`, `pytest`) at runtime due to stale `uv.lock`
 
 ---
 
@@ -155,5 +157,25 @@ Pre-release versions may contain breaking changes during active alpha developmen
 
 ### v0.5.0-beta
 - Multi-connection monitoring
+- Endpoint discovery
 - Production deployment documentation
 - Performance validation
+
+### v0.6.x
+- Historical Data Logging
+- Historical Trend Viewer
+- OPC UA Write Support
+- MQTT Integration
+- Connection Profiles
+
+### v0.7.x
+- Alarm Management Workspace
+- Event Handling
+- Advanced Diagnostics
+- Industrial Reporting
+
+### v1.0
+- Stable Monitoring Platform
+- Production Deployment Ready
+- Mature Security Workflow
+- Plugin / Extension Foundation
