@@ -12,7 +12,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# APIRouter groups all endpoints under /api/v1/connections
 router = APIRouter(prefix="/api/v1/connections", tags=["connections"])
 
 
@@ -29,11 +28,24 @@ async def create_connection(
     db: AsyncSession = Depends(get_db)
 ):
     """Save a new OPC UA connection to the database."""
-    connection = Connection(name=data.name, endpoint=data.endpoint)
+    connection = Connection(
+        name=data.name,
+        endpoint=data.endpoint,
+        auth_type=data.auth_type,
+        username=data.username,
+        password=data.password,
+        security_mode=data.security_mode,
+        security_policy=data.security_policy,
+        certificate_path=data.certificate_path,
+        private_key_path=data.private_key_path,
+    )
     db.add(connection)
     await db.commit()
     await db.refresh(connection)
-    logger.info(f"Connection created [id={connection.id}, name={connection.name}]")
+    logger.info(
+        f"Connection created [id={connection.id}, name={connection.name}, "
+        f"auth={connection.auth_type}, security={connection.security_mode}]"
+    )
     return connection
 
 
@@ -51,7 +63,6 @@ async def delete_connection(
     if not connection:
         raise HTTPException(status_code=404, detail="Connection not found")
 
-    # If connection is active, close it cleanly before deleting
     if opcua_manager.is_connected(connection_id):
         await opcua_manager.disconnect(connection_id)
         logger.info(f"Closed active connection before delete [id={connection_id}]")
@@ -67,7 +78,7 @@ async def connect_to_server(
     connection_id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    """Actually connect to the OPC UA server and update status in DB."""
+    """Connect to the OPC UA server with stored security configuration."""
     result = await db.execute(
         select(Connection).where(Connection.id == connection_id)
     )
@@ -76,26 +87,31 @@ async def connect_to_server(
     if not connection:
         raise HTTPException(status_code=404, detail="Connection not found")
 
-    success = await opcua_manager.connect(connection_id, connection.endpoint)
+    success, error_msg = await opcua_manager.connect(
+        connection_id=connection_id,
+        endpoint=connection.endpoint,
+        auth_type=connection.auth_type,
+        username=connection.username,
+        password=connection.password,
+        security_mode=connection.security_mode,
+        security_policy=connection.security_policy,
+        certificate_path=connection.certificate_path,
+        private_key_path=connection.private_key_path,
+    )
 
     if not success:
-        # Record the failure in DB for observability
         connection.is_active = False
         connection.retry_count += 1
-        connection.last_error = f"Failed to connect to {connection.endpoint}"
+        connection.last_error = error_msg
         await db.commit()
         await db.refresh(connection)
         logger.warning(
             f"Connection failed [id={connection_id}, "
             f"endpoint={connection.endpoint}, "
-            f"retry_count={connection.retry_count}]"
+            f"retry_count={connection.retry_count}]: {error_msg}"
         )
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to connect to OPC UA server at {connection.endpoint}"
-        )
+        raise HTTPException(status_code=400, detail=error_msg)
 
-    # Connection succeeded — update state
     connection.is_active = True
     connection.last_connected_at = datetime.now(timezone.utc)
     connection.last_error = None
@@ -103,7 +119,9 @@ async def connect_to_server(
     await db.commit()
     await db.refresh(connection)
     logger.info(
-        f"Connection established [id={connection_id}, endpoint={connection.endpoint}]"
+        f"Connection established [id={connection_id}, "
+        f"endpoint={connection.endpoint}, "
+        f"auth={connection.auth_type}, security={connection.security_mode}]"
     )
     return connection
 

@@ -1,29 +1,29 @@
 ![Status](https://img.shields.io/badge/status-alpha-orange)
-![Release](https://img.shields.io/badge/release-v0.3.0--alpha-blue)
+![Release](https://img.shields.io/badge/release-v0.4.0--alpha-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 # Silver OPC UA Toolkit
 
-Modern open-source OPC UA toolkit for industrial monitoring, realtime visualization, and future industrial AI workflows.
+Modern open-source OPC UA toolkit for industrial monitoring, realtime visualization, secure connectivity, and future industrial AI workflows.
 
-Built for industrial engineers, automation developers, and Industry 4.0 environments.
+Built for industrial engineers, automation developers, system integrators, and Industry 4.0 environments.
 
 ---
-
+![Silver OPC UA Toolkit](docs/screenshots/live-monitor.png)
 ## Overview
 
 Silver OPC UA Toolkit is a modern industrial software platform focused on creating lightweight, developer-friendly, and cross-platform industrial tools around OPC UA.
 
-The project aims to modernize industrial monitoring workflows with clean UI, realtime data handling, scalable OPC UA navigation, and future AI-assisted industrial tooling.
+The project aims to modernize industrial monitoring workflows with clean UI, realtime data handling, secure OPC UA connectivity, scalable tag navigation, and future AI-assisted industrial tooling.
 
-Designed for:
+The toolkit is designed for:
 
-- Industrial engineers
-- Automation developers
-- PLC programmers
-- System integrators
-- IIoT developers
-- Smart factory environments
+- Industrial Engineers
+- Automation Developers
+- PLC Programmers
+- System Integrators
+- IIoT Developers
+- Smart Factory Environments
 
 ---
 
@@ -36,11 +36,13 @@ Most industrial software tools are:
 - Difficult to use
 - Built around legacy UX patterns
 - Poor at realtime workflows
+- Expensive and vendor-locked
 
 Silver OPC UA Toolkit aims to provide a modern alternative with:
 
 - Modern web-based UI
 - Realtime industrial workflows
+- Secure OPC UA communication
 - Cross-platform architecture
 - Lightweight deployment
 - Open-source flexibility
@@ -52,25 +54,53 @@ Silver OPC UA Toolkit aims to provide a modern alternative with:
 
 ### Implemented
 
+#### OPC UA Connectivity
+
 - OPC UA Connection Manager
+- Realtime OPC UA Monitoring
 - Scalable Tag Browser
 - Searchable OPC UA Navigation
-- Watchlist-based monitoring workflow (persistent via localStorage)
-- Realtime OPC UA Monitoring
-- WebSocket-based realtime updates
+- Watchlist-based Monitoring Workflow
+- Persistent Watchlists
+- Connection Health Monitoring
+
+#### OPC UA Security
+
+- Security Mode Support:
+  - None
+  - Sign
+  - SignAndEncrypt
+
+- Security Policy Support:
+  - Basic256Sha256
+  - Aes128Sha256RsaOaep
+  - Aes256Sha256RsaPss
+
+- Authentication:
+  - Anonymous
+  - Username / Password
+
+- Client Certificate Generation
+- Certificate-based OPC UA Security
+- Human-readable Security Error Messages
+
+#### Monitoring & Visualization
+
+- WebSocket-based Realtime Updates
 - Realtime Charts
-- Configurable monitoring windows
-- Configurable update intervals
-- Chart pause / resume
-- Boolean tag visualization (ON/OFF)
-- CSV data export with time-window selection
-- Alarm and threshold visualization (Warning / Critical, High / Low)
-- Threshold reference lines on trend charts
-- System Status panel with live runtime indicators
-- Realistic 5-mode industrial simulator (normal / alarm / step / frozen / recovering)
-- Structured logging
-- Dockerized deployment
-- Modern sidebar navigation with industrial SaaS aesthetic
+- Configurable Update Rates
+- Configurable Monitoring Windows
+- CSV Export
+- Alarm & Threshold Visualization
+- Boolean Tag Support
+- System Status Panel
+
+#### Platform
+
+- Structured Logging
+- Dockerized Deployment
+- Industrial Simulator Environment
+- Modern Industrial SaaS-style UI
 
 ---
 
@@ -90,6 +120,21 @@ React Frontend
 
 ---
 
+## Compatibility
+
+Silver OPC UA Toolkit is designed to work with standard OPC UA servers and industrial environments.
+
+Validated with:
+
+- Generic OPC UA servers
+- asyncua-based servers
+- Custom OPC UA endpoints
+- Siemens-compatible String Node IDs (`ns=X;s=TagName`)
+
+Compatibility testing will continue to expand during beta releases.
+
+---
+
 ## Tech Stack
 
 ### Backend
@@ -100,6 +145,7 @@ React Frontend
 - SQLAlchemy (async)
 - WebSockets
 - Pydantic
+- pydantic-settings
 - uv
 
 ### Frontend
@@ -114,14 +160,14 @@ React Frontend
 ### Infrastructure
 
 - Docker
-- docker-compose
+- Docker Compose
 - nginx
 
 ---
 
-# Quick Start
+## Quick Start
 
-## Requirements
+### Requirements
 
 - Python 3.12+
 - Node.js 20+
@@ -139,40 +185,29 @@ cd Silver-OPCUA-Toolkit
 
 ---
 
-# Development Setup
+## Development Setup
 
-## Terminal 1 — OPC UA Simulator
+### Terminal 1 — OPC UA Simulator
 
 ```bash
 cd backend
 uv run python simulator/server.py
 ```
 
-Simulator endpoint:
-
-```text
-opc.tcp://localhost:4840
-```
-
----
-
-## Terminal 2 — Backend
+### Terminal 2 — Backend
 
 ```bash
 cd backend
-uv sync
 uv run python run.py
 ```
 
-Backend API docs:
+Backend API:
 
 ```text
 http://localhost:8000/docs
 ```
 
----
-
-## Terminal 3 — Frontend
+### Terminal 3 — Frontend
 
 ```bash
 cd frontend
@@ -180,7 +215,7 @@ npm install
 npm run dev
 ```
 
-Frontend development server:
+Frontend:
 
 ```text
 http://localhost:5173
@@ -188,9 +223,9 @@ http://localhost:5173
 
 ---
 
-# Docker Quick Start
+## Docker Quick Start
 
-Run the full stack with:
+Run the complete stack:
 
 ```bash
 docker compose up --build
@@ -199,91 +234,99 @@ docker compose up --build
 Services:
 
 | Service | URL |
-|---|---|
+|----------|----------|
 | Frontend | http://localhost:8080 |
 | Backend API | http://localhost:8000/docs |
-| OPC UA Simulator | opc.tcp://localhost:4840 |
+| OPC UA Simulator | opc.tcp://simulator:4840 |
 
-Inside Docker containers, use:
-
-```text
-opc.tcp://simulator:4840
-```
+> When using Docker, use `opc.tcp://simulator:4840` as the OPC UA endpoint.
 
 ---
 
 # Screenshots
 
 ## Connections Management
+
 ![Connections](docs/screenshots/connections.png)
-Modern OPC UA connection management with realtime status tracking, retry monitoring, and connection lifecycle visibility.
+
+Modern OPC UA connection management with realtime status tracking, retry monitoring, health visibility, and security-aware connection workflows.
+
+---
 
 ## Tag Browser
-![Connections](docs/screenshots/tag-browser.png)
-Scalable industrial tag browser with search, hierarchical OPC UA navigation, and watchlist workflow.
+
+![Tag Browser](docs/screenshots/tag-browser.png)
+
+Scalable industrial tag browser with recursive OPC UA navigation, search capabilities, and watchlist integration.
+
+---
 
 ## Live Monitoring
-![Connections](docs/screenshots/live-monitor.png)
-Realtime industrial monitoring dashboard with watchlists, configurable update rates, and live trend visualization.
+
+![Live Monitor](docs/screenshots/live-monitor.png)
+
+Realtime monitoring dashboard with watchlists, alarms, threshold visualization, configurable update rates, CSV export, and live trend charts.
 
 ---
 
-# Roadmap
+## Security Configuration
 
-## Near-Term
+![Security Configuration](docs/screenshots/security-config.png)
 
-- ✅ Persistent watchlists
-- ✅ CSV export
-- ✅ Alarm visualization
-- ✅ System Status panel
-- ✅ Improved industrial UX workflows
-- OPC UA security foundations (v0.4.0-alpha)
-- Multi-connection monitoring (v0.5.0-beta)
-
-## Mid-Term
-
-- Historical data logging
-- MQTT integration
-- Alarm & event workflows
-- Multi-device support
-- OPC UA write support
-
-## Long-Term
-
-- AI-assisted diagnostics
-- Predictive maintenance
-- Industrial AI copilot
-- Edge AI workflows
-- Cloud monitoring platform
+Secure OPC UA connection setup supporting authentication methods, security modes, security policies, and certificate-based communication.
 
 ---
 
-# Project Status
+## Roadmap
 
-Current status: **v0.3.0-alpha**
+### v0.5.0-beta
 
-The project is under active development and currently focused on building a modern industrial monitoring platform around OPC UA and future industrial AI workflows.
+- Multi-connection monitoring
+- Production deployment documentation
+- Performance validation
+- Advanced OPC UA security validation
+- Expanded industrial interoperability testing
+
+### Future Releases
+
+- Historical Data Logging
+- MQTT Integration
+- Alarm & Event Workflows
+- OPC UA Write Support
+- Multi-device Monitoring
+- Trust Store Management
+- AI-assisted Diagnostics
+- Predictive Maintenance
+- Industrial AI Copilot
+
+---
+
+## Project Status
+
+Current status: **v0.4.0-alpha**
+
+The project is under active development and focused on building a modern industrial monitoring platform around OPC UA and future industrial AI workflows.
 
 Current alpha focus areas:
 
 - Realtime industrial monitoring
+- OPC UA security
+- Authentication and certificate workflows
 - Modern industrial UX
-- Scalable OPC UA workflows
-- Alarm and threshold visualization
+- Scalable OPC UA navigation
 - Lightweight deployment
 - Open-source industrial tooling
 
 ---
 
-# Contributing
+## Contributing
 
-Contributions, feedback, architecture discussions, and industrial workflow ideas are welcome.
+Contributions, feedback, architecture discussions, bug reports, and industrial workflow ideas are welcome.
 
-Contribution guidelines and issue templates will be added in upcoming releases.
+If you work with industrial automation, OPC UA, SCADA, IIoT, or Industry 4.0 technologies, your feedback is highly valuable.
 
 ---
 
-
-# License
+## License
 
 Licensed under the Apache License 2.0.

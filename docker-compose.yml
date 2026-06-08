@@ -29,6 +29,7 @@ services:
       - LOG_FORMAT=json
       - LOG_LEVEL=INFO
       - DB_PATH=/app/data/toolkit.db
+      - CERTS_DIR=/app/data/certs
     volumes:
       - ./data:/app/data
     depends_on:

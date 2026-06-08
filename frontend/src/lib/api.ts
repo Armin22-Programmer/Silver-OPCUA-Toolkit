@@ -2,18 +2,18 @@
 
 import axios from 'axios'
 
-// In production (Docker), nginx proxies /api/ and /ws/ to backend.
-// In development, we talk directly to localhost:8000.
 const BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:8000'
 const WS_BASE  = import.meta.env.PROD
   ? `ws://${window.location.host}`
   : 'ws://localhost:8000'
 
-const api = axios.create({
-  baseURL: BASE_URL,
-})
+const api = axios.create({ baseURL: BASE_URL })
 
 export { WS_BASE }
+
+export type AuthType       = 'anonymous' | 'username'
+export type SecurityMode   = 'None' | 'Sign' | 'SignAndEncrypt'
+export type SecurityPolicy = 'None' | 'Basic256Sha256' | 'Aes128Sha256RsaOaep' | 'Aes256Sha256RsaPss'
 
 export interface Connection {
   id: number
@@ -24,11 +24,25 @@ export interface Connection {
   last_connected_at: string | null
   last_error: string | null
   retry_count: number
+  // Security fields
+  auth_type:        AuthType
+  security_mode:    SecurityMode
+  security_policy:  SecurityPolicy
+  certificate_path: string | null
+  private_key_path: string | null
 }
 
 export interface ConnectionCreate {
   name: string
   endpoint: string
+  // Security — all optional with safe defaults
+  auth_type?:        AuthType
+  username?:         string
+  password?:         string
+  security_mode?:    SecurityMode
+  security_policy?:  SecurityPolicy
+  certificate_path?: string
+  private_key_path?: string
 }
 
 export interface NodeInfo {

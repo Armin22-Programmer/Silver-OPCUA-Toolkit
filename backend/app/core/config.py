@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     OPCUA_PING_INTERVAL: float = 5.0
     OPCUA_HANDSHAKE_TIMEOUT: float = 10.0
 
+    # Certificates — stored alongside DB in data dir
+    # Dev default: backend/certs/   Docker: /app/data/certs/
+    CERTS_DIR: str = "certs"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

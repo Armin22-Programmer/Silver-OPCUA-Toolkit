@@ -78,7 +78,7 @@ function Sidebar({ page, setPage }: { page: Page; setPage: (p: Page) => void }) 
             Silver OPC UA
           </div>
           <div style={{ fontSize: '10px', color: '#6B7280', marginTop: '1px' }}>
-            v0.3.0-alpha
+            v0.4.0-alpha
           </div>
         </div>
       </div>

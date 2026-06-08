@@ -8,6 +8,69 @@ Pre-release versions may contain breaking changes during active alpha developmen
 
 ---
 
+## [v0.4.0-alpha] - 2026-06-04
+
+### Added
+
+#### Backend
+- OPC UA Security foundation:
+  - Security mode selection: `None` / `Sign` / `SignAndEncrypt`
+  - Security policy selection: `Basic256Sha256`, `Aes128Sha256RsaOaep`, `Aes256Sha256RsaPss`
+  - Authentication: `Anonymous` / `Username + Password`
+  - File-based certificate handling (no PKI UI)
+  - Application URI extracted from certificate for server handshake compliance
+- Client certificate generation endpoint (`POST /api/v1/certificates/generate`):
+  - RSA 2048-bit key
+  - SHA-256 signature
+  - Key Usage extension (Digital Signature, Key Encipherment)
+  - Extended Key Usage (Client Authentication)
+  - Subject Alternative Name with configurable Application URI
+  - Subject Key Identifier
+  - Certificates stored in `CERTS_DIR` (persistent Docker volume)
+- Certificate info endpoint (`GET /api/v1/certificates/info`)
+- Connection health check background task (10s interval):
+  - Pings active connections via server state node read
+  - Marks connection as inactive in DB when server drops
+  - Human-readable `last_error` on disconnect
+- `CERTS_DIR` environment variable for configurable certificate storage
+- Human-readable OPC UA error messages
+- OPC UA node ID parser fix: supports String-type identifiers (`ns=3;s=TagName`)
+- Simulator security support:
+  - Self-signed server certificate generation
+  - Username/password authentication (`admin/admin123`, `operator/op456`)
+  - Security policies: None / Basic256Sha256 Sign / Basic256Sha256 SignAndEncrypt
+
+#### Frontend
+- Security configuration UI in Add Connection dialog:
+  - Security mode selector (None / Sign / SignAndEncrypt)
+  - Security policy dropdown
+  - Auth type selector (Anonymous / Username+Password)
+  - Certificate and private key path inputs
+  - "Generate Client Certificate" button (auto-fills paths after generation)
+- Security badge on connection rows
+- Human-readable connection error messages displayed inline
+
+#### Infrastructure
+- `backend/.dockerignore` added
+- `CERTS_DIR` volume mount in `docker-compose.yml`
+
+---
+
+### Fixed
+- OPC UA connection health not reflected in UI after server restart
+- Tag Browser browse failure with String-type node IDs (Siemens S7 compatibility)
+- Auto-reconnect on startup now passes full security credentials from DB
+- Username/password credentials set before `connect()` (not after)
+
+---
+
+### Changed
+- `OPCUAManager.connect()` now returns `(success, error_message)` tuple
+- Connection model extended with security fields
+- `main.py` lifespan passes full security params during auto-reconnect
+
+---
+
 ## [v0.3.0-alpha] - 2026-05-29
 
 ### Added
@@ -15,51 +78,22 @@ Pre-release versions may contain breaking changes during active alpha developmen
 #### Frontend
 - Persistent watchlist via `localStorage` (`silver_opcua_watchlist`)
 - CSV export dialog with time-window slider and per-tag columns
-- Alarm and threshold visualization:
-  - Warning High / Warning Low per tag
-  - Critical High / Critical Low per tag
-  - Threshold lines on trend chart (dashed reference lines)
-  - Card color states: normal / warning / critical
-  - Threshold settings persisted to `localStorage` (`silver_opcua_thresholds`)
-- System Status panel in sidebar with real-time indicators:
-  - Backend API availability
-  - WebSocket connection state
-  - OPC UA connection state
-  - Stream running / paused / stopped
-  - Active watchlist tag count
+- Alarm and threshold visualization (Warning / Critical, High / Low per tag)
+- Threshold lines on trend chart
+- System Status panel in sidebar with real-time indicators
 - Auto-restart stream when watchlist changes during active monitoring
-- Stream settings persisted to `localStorage` (`silver_opcua_stream_settings`)
-- UI Refinement Pass:
-  - Sidebar navigation replacing top navbar
-  - Improved visual hierarchy and surface depth
-  - Refined card, badge, and table styling
-  - Industrial SaaS aesthetic (Cognite / Grafana inspired)
-  - Cleaner typography scale and spacing
-  - Polished Tag Browser tree and details panel
-  - Dark tooltip style for charts
-  - Smoother hover and transition states
+- UI Refinement Pass: sidebar navigation, industrial SaaS aesthetic
 
 #### Simulator
-- Realistic 5-mode industrial signal simulation:
-  - `normal` — Gaussian noise around setpoint
-  - `alarm` — values exceeding thresholds
-  - `step` — sudden setpoint changes
-  - `frozen` — stuck/bad-quality signal
-  - `recovering` — gradual return to normal
-
----
+- Realistic 5-mode industrial signal simulation: normal / alarm / step / frozen / recovering
 
 ### Fixed
 - Watchlist tags removed correctly when parent connection is deleted
-- Stream correctly stops when all watchlist tags are cleared
 - WebSocket status accurately reflects live connection state
-
----
 
 ### Changed
 - Navigation migrated from horizontal top bar to vertical sidebar
 - System Status footer replaced static text with live runtime indicators
-- Monitoring cards now reflect alarm state via border and background color
 
 ---
 
@@ -68,98 +102,29 @@ Pre-release versions may contain breaking changes during active alpha developmen
 ### Added
 
 #### Backend
-- Structured logging and lifecycle observability
-- Text log format for development and JSON format for production
-- Centralized configuration via `Settings` class (`pydantic-settings`)
-- Connection state machine with:
-  - `last_connected_at`
-  - `last_error`
-  - `retry_count`
+- Structured logging (text dev / JSON prod)
+- Centralized configuration via `Settings` class
+- Connection state machine with `last_connected_at`, `last_error`, `retry_count`
 - OPC UA lifecycle cleanup via `_force_cleanup()`
-- WebSocket ping/pong loop for dead connection detection every 5 seconds
-- WebSocket handshake timeout (10 seconds)
-- Configurable monitoring interval via `update_rate_ms`
-- `disconnect_all()` for clean application shutdown
-- `DB_PATH` environment variable for configurable SQLite location
-- Docker healthcheck for simulator readiness
+- WebSocket ping/pong loop and handshake timeout
+- `DB_PATH` environment variable
+- Docker healthcheck for simulator
 
 #### Frontend
 - Watchlist-based monitoring workflow
-- Watchlist state persistence across page navigation (React Context)
-- Redesigned Tag Browser with:
-  - recursive tree explorer
-  - details panel
-  - real-time search
-  - expandable node hierarchy
-- Per-node loading indicators during tree expansion
-- Tag details panel:
-  - Name
-  - Node ID
-  - Node Class
-  - Current Value
-- Clean OPC UA node ID formatting (`ns=X;i=Y`)
-- Boolean tag visualization in charts (`ON/OFF`)
-- Chart pause / resume support
-- Configurable monitoring windows:
-  - 30s
-  - 1m
-  - 2m
-  - 5m
-  - 10m
-- Configurable update intervals:
-  - 100ms
-  - 500ms
-  - 1s
-  - 5s
-  - 10s
-- Real elapsed time labels on chart X-axis
-- Watchlist counter badge in navigation
-- Color-matched monitoring cards and chart series
-- Inline connection error feedback
-- Loading indicators for connect/disconnect actions
-- Empty states with industrial-style UX guidance
-- Active navigation tab indicator
-- Improved visual hierarchy:
-  - layered surfaces
-  - shadows
-  - styled scrollbars
+- Recursive Tag Browser with search and details panel
+- Boolean tag visualization (ON/OFF)
+- Chart pause / resume
+- Configurable monitoring windows and update intervals
 
 #### Infrastructure
-- Multi-stage Docker frontend build (`Node 20 Alpine + nginx`)
-- Backend Docker container (`Python 3.12-slim + uv`)
-- `docker-compose.yml` with:
-  - simulator
-  - backend
-  - frontend
-- nginx reverse proxy for:
-  - `/api/`
-  - `/ws/`
-- SPA fallback routing
-- Docker networking fixes for OPC UA simulator
-- Automatic development/production URL switching
-
----
+- Multi-stage Docker builds
+- nginx reverse proxy
+- Automatic dev/prod URL switching
 
 ### Fixed
-
 - Memory leak during OPC UA connection failures
-- WebSocket streams continuing after OPC UA disconnect
-- Stale `is_connected()` state handling
-- Reconnect safety for duplicate connection IDs
-- Docker startup race condition between backend and simulator
-- OPC UA node ID parsing edge cases
-- Resolved ESLint issues across frontend codebase
-- Resolved Ruff warnings across backend codebase
-
----
-
-### Changed
-
-- Backend startup flow migrated from direct `uvicorn` CLI usage to `run.py`
-- SQLAlchemy boolean comparison updated to `.is_(True)` best practice
-- Monitoring workflow migrated from connection-centric to watchlist-centric
-- Tag Browser upgraded from hardcoded tree to fully recursive navigation
-- Charts now use real elapsed timestamps instead of sequential counters
+- Docker startup race condition
 
 ---
 
@@ -167,55 +132,28 @@ Pre-release versions may contain breaking changes during active alpha developmen
 
 ### Added
 - OPC UA Connection Manager
-- Connection persistence with auto-reconnect on startup
 - Recursive OPC UA Tag Browser
 - Live monitoring via WebSockets
 - Realtime multi-tag charting
 - Industrial OPC UA simulator
-- FastAPI backend
-- Async SQLAlchemy integration
-- React + TypeScript frontend
-- SQLite-based persistence layer
-
----
-
-## Release Notes
-
-### v0.2.0-alpha
-
-This release focuses on:
-
-- Stability hardening
-- Realtime monitoring reliability
-- Industrial UX improvements
-- Dockerized deployment
-- Scalable OPC UA navigation
-
-This is the first public alpha release intended for early feedback and industrial workflow validation.
+- FastAPI backend + React frontend
+- SQLite persistence
 
 ---
 
 ## Roadmap
 
 ### v0.3.0-alpha ✅ Released 2026-05-29
-- Persistent watchlist (`localStorage`)
-- CSV export for chart data
-- Alarm / threshold visualization
-- System Status panel
-- UI Refinement Pass
-- Realistic 5-mode industrial simulator
+- Persistent watchlist, CSV export, Alarm visualization, UI Refinement
 
-### v0.4.0-alpha
-- OPC UA security foundations
-- Authentication (`Anonymous` / `Username + Password`)
-- Certificate handling groundwork
-- Security mode selection:
-  - `None`
-  - `Sign`
-  - `SignAndEncrypt`
+### v0.4.0-alpha ✅ Released 2026-06-04
+- OPC UA security (None/Sign/SignAndEncrypt)
+- Authentication (Anonymous/Username+Password)
+- Client certificate generation
+- Connection health monitoring
+- Siemens S7 compatibility fixes
 
 ### v0.5.0-beta
-- Stable architecture milestone
 - Multi-connection monitoring
 - Production deployment documentation
 - Performance validation

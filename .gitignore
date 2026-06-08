@@ -240,3 +240,5 @@ tmp/
 temp/
 
 *.db
+# Runtime data (DB, certs, logs)
+data/
